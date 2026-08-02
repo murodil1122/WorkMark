@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkMark</title>
+
+  <meta name="theme-color" content="#0b1020" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WorkMark" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="./icon-180.png" />
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: rgba(19, 27, 48, 0.92);
+      --panel-2: #17213a;
+      --text: #f7f9ff;
+      --muted: #98a4bd;
+      --accent: #6d7cff;
+      --accent-2: #8c5cff;
+      --success: #30d68a;
+      --danger: #ff647c;
+      --border: rgba(255,255,255,.08);
+      --shadow: 0 24px 70px rgba(0,0,0,.32);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(109,124,255,.25), transparent 30%),
+        radial-gradient(circle at 85% 85%, rgba(140,92,255,.20), transparent 30%),
+        var(--bg);
+      padding: 24px;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1050px, 100%);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 32px rgba(109,124,255,.32);
+      font-size: 22px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(24px, 4vw, 34px);
+      line-height: 1;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .stat-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+
+    .stat-card strong {
+      font-size: clamp(26px, 5vw, 38px);
+      line-height: 1;
+    }
+
+    .stat-card small {
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(280px, .7fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+    }
+
+    .calendar-panel {
+      padding: 22px;
+    }
+
+    .calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .calendar-title {
+      text-align: center;
+    }
+
+    .calendar-title h2 {
+      margin: 0;
+      font-size: 22px;
+      text-transform: capitalize;
+    }
+
+    .calendar-title button {
+      margin-top: 7px;
+      border: 0;
+      padding: 0;
+      background: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .nav-btn {
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: rgba(255,255,255,.04);
+      color: white;
+      cursor: pointer;
+      font-size: 22px;
+      transition: .2s ease;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255,255,255,.09);
+      transform: translateY(-1px);
+    }
+
+    .weekdays, .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .weekdays div {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 6px 0 10px;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      min-height: 48px;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      background: rgba(255,255,255,.035);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      position: relative;
+      transition: .18s ease;
+    }
+
+    .day:hover:not(:disabled) {
+      background: rgba(255,255,255,.08);
+      transform: translateY(-2px);
+    }
+
+    .day.muted {
+      opacity: .2;
+      cursor: default;
+    }
+
+    .day.today {
+      border-color: rgba(109,124,255,.85);
+    }
+
+    .day.worked {
+      background: linear-gradient(145deg, rgba(48,214,138,.28), rgba(48,214,138,.10));
+      border-color: rgba(48,214,138,.55);
+    }
+
+    .day.selected {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .day.future {
+      opacity: .28;
+      cursor: not-allowed;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .side-panel {
+      padding: 22px;
+      position: sticky;
+      top: 20px;
+    }
+
+    .side-panel h3 {
+      margin: 0 0 6px;
+      font-size: 20px;
+    }
+
+    .selected-date {
+      color: var(--muted);
+      margin-bottom: 20px;
+      text-transform: capitalize;
+    }
+
+    .status-box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+    }
+
+    .status-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .status-value {
+      font-size: 19px;
+      font-weight: 700;
+    }
+
+    .mark-btn {
+      width: 100%;
+      border: 0;
+      border-radius: 15px;
+      padding: 14px 16px;
+      color: white;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: 0 12px 28px rgba(109,124,255,.26);
+      transition: .2s ease;
+    }
+
+    .mark-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    .mark-btn.remove {
+      background: linear-gradient(135deg, #ff5f78, #ff806a);
+      box-shadow: 0 12px 28px rgba(255,100,124,.23);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+      margin: 16px 2px 0;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+      background: #10182b;
+      border: 1px solid var(--border);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 13px;
+      box-shadow: var(--shadow);
+      transition: .25s ease;
+      z-index: 10;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 14px;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side-panel {
+        position: static;
+      }
+
+      .calendar-panel {
+        padding: 16px;
+      }
+
+      .day {
+        border-radius: 12px;
+        min-height: 42px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="logo">✓</div>
+        <div>
+          <h1>WorkMark</h1>
+          <p>Твой простой календарь рабочих дней</p>
+        </div>
+      </div>
+    </header>
+
+    <section class="stats">
+      <article class="stat-card">
+        <span>Всего отмечено</span>
+        <strong id="totalCount">0</strong><small>дней</small>
+      </article>
+      <article class="stat-card">
+        <span>В этом месяце</span>
+        <strong id="monthCount">0</strong><small>дней</small>
+      </article>
+      <article class="stat-card">
+        <span>Текущая серия</span>
+        <strong id="streakCount">0</strong><small>дней</small>
+      </article>
+      <article class="stat-card">
+        <span>Заработано за месяц</span>
+        <strong id="salaryCount">0</strong><small>сом</small>
+      </article>
+    </section>
+
+    <section class="layout">
+      <div class="panel calendar-panel">
+        <div class="calendar-header">
+          <button class="nav-btn" id="prevMonth" aria-label="Предыдущий месяц">‹</button>
+          <div class="calendar-title">
+            <h2 id="monthTitle"></h2>
+            <button id="todayBtn">Вернуться к сегодняшнему дню</button>
+          </div>
+          <button class="nav-btn" id="nextMonth" aria-label="Следующий месяц">›</button>
+        </div>
+
+        <div class="weekdays">
+          <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <aside class="panel side-panel">
+        <h3>Выбранный день</h3>
+        <div class="selected-date" id="selectedDateText"></div>
+
+        <div class="status-box">
+          <div class="status-label">Статус</div>
+          <div class="status-value" id="statusValue">Не отмечен</div>
+        </div>
+
+        <button class="mark-btn" id="toggleBtn">Отметить как рабочий</button>
+
+        <p class="hint">
+          Нажимай на любой прошедший день в календаре. Данные сохраняются прямо в этом браузере.
+        </p>
+      </aside>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = "workmark_days_v2";
+    const MONTHLY_SALARY = 35000;
+    const DAILY_SALARY = MONTHLY_SALARY / 30;
+
+    let workDays = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
+    let viewDate = new Date();
+    let selectedDate = stripTime(new Date());
+
+    const monthNames = [
+      "январь", "февраль", "март", "апрель", "май", "июнь",
+      "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"
+    ];
+
+    const calendarGrid = document.getElementById("calendarGrid");
+    const monthTitle = document.getElementById("monthTitle");
+    const selectedDateText = document.getElementById("selectedDateText");
+    const statusValue = document.getElementById("statusValue");
+    const toggleBtn = document.getElementById("toggleBtn");
+    const totalCount = document.getElementById("totalCount");
+    const monthCount = document.getElementById("monthCount");
+    const streakCount = document.getElementById("streakCount");
+    const salaryCount = document.getElementById("salaryCount");
+    const toast = document.getElementById("toast");
+
+    function stripTime(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function toKey(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([...workDays].sort()));
+    }
+
+    function isFuture(date) {
+      return stripTime(date) > stripTime(new Date());
+    }
+
+    function sameDate(a, b) {
+      return toKey(a) === toKey(b);
+    }
+
+    function formatLong(date) {
+      return date.toLocaleDateString("ru-RU", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+    }
+
+    function renderCalendar() {
+      calendarGrid.innerHTML = "";
+
+      const year = viewDate.getFullYear();
+      const month = viewDate.getMonth();
+
+      monthTitle.textContent = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startOffset = (firstDay.getDay() + 6) % 7;
+      const totalCells = Math.ceil((startOffset + lastDay.getDate()) / 7) * 7;
+
+      for (let i = 0; i < totalCells; i++) {
+        const dayNumber = i - startOffset + 1;
+        const button = document.createElement("button");
+        button.className = "day";
+
+        if (dayNumber < 1 || dayNumber > lastDay.getDate()) {
+          button.classList.add("muted");
+          button.disabled = true;
+          calendarGrid.appendChild(button);
+          continue;
+        }
+
+        const current = new Date(year, month, dayNumber);
+        const key = toKey(current);
+
+        button.innerHTML = `<span>${dayNumber}</span>`;
+
+        if (sameDate(current, new Date())) button.classList.add("today");
+        if (workDays.has(key)) {
+          button.classList.add("worked");
+          button.insertAdjacentHTML("beforeend", '<span class="dot"></span>');
+        }
+        if (sameDate(current, selectedDate)) button.classList.add("selected");
+        if (isFuture(current)) {
+          button.classList.add("future");
+          button.disabled = true;
+          button.title = "Будущие дни пока нельзя отмечать";
+        }
+
+        button.addEventListener("click", () => {
+          selectedDate = current;
+          render();
+        });
+
+        calendarGrid.appendChild(button);
+      }
+    }
+
+    function calculateStreak() {
+      let streak = 0;
+      let cursor = stripTime(new Date());
+
+      while (workDays.has(toKey(cursor))) {
+        streak++;
+        cursor.setDate(cursor.getDate() - 1);
+      }
+
+      return streak;
+    }
+
+    function renderStats() {
+      totalCount.textContent = workDays.size;
+
+      const prefix = `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, "0")}`;
+      const monthTotal = [...workDays].filter(date => date.startsWith(prefix)).length;
+      monthCount.textContent = monthTotal;
+      salaryCount.textContent = Math.round(monthTotal * DAILY_SALARY).toLocaleString("ru-RU");
+
+      streakCount.textContent = calculateStreak();
+    }
+
+    function renderSelected() {
+      const key = toKey(selectedDate);
+      const worked = workDays.has(key);
+
+      selectedDateText.textContent = formatLong(selectedDate);
+      statusValue.textContent = worked ? "Рабочий день ✓" : "Не отмечен";
+
+      toggleBtn.textContent = worked ? "Удалить отметку" : "Отметить как рабочий";
+      toggleBtn.classList.toggle("remove", worked);
+      toggleBtn.disabled = isFuture(selectedDate);
+    }
+
+    function render() {
+      renderCalendar();
+      renderStats();
+      renderSelected();
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    toggleBtn.addEventListener("click", () => {
+      const key = toKey(selectedDate);
+
+      if (workDays.has(key)) {
+        workDays.delete(key);
+        showToast("Отметка удалена");
+      } else {
+        workDays.add(key);
+        showToast("Рабочий день отмечен");
+      }
+
+      save();
+      render();
+    });
+
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1);
+      render();
+    });
+
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      viewDate = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1);
+      render();
+    });
+
+    document.getElementById("todayBtn").addEventListener("click", () => {
+      viewDate = new Date();
+      selectedDate = stripTime(new Date());
+      render();
+    });
+
+    render();
+  </script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js").catch(() => {});
+      });
+    }
+  </script>
+
+</body>
+</html>
