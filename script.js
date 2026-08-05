@@ -23,13 +23,21 @@
     const salaryCount = document.getElementById("salaryCount");
     const toast = document.getElementById("toast");
 const themeToggle = document.getElementById("themeToggle");
+const savedTheme = localStorage.getItem("workmark_theme");
+
+if (savedTheme === "dark") {
+  document.body.classList.add("dark");
+  themeToggle.textContent = "☀️";
+}
 
 themeToggle.addEventListener("click", () => {
   document.body.classList.toggle("dark");
 
   if (document.body.classList.contains("dark")) {
+    localStorage.setItem("workmark_theme", "dark");
     themeToggle.textContent = "☀️";
   } else {
+    localStorage.setItem("workmark_theme", "light");
     themeToggle.textContent = "🌙";
   }
 });
