@@ -23,24 +23,27 @@
     const salaryCount = document.getElementById("salaryCount");
     const toast = document.getElementById("toast");
 const themeToggle = document.getElementById("themeToggle");
-const savedTheme = localStorage.getItem("workmark_theme");
 
-if (savedTheme === "dark") {
-  document.body.classList.add("dark");
-  themeToggle.textContent = "☀️";
-}
+if (themeToggle) {
+  const savedTheme = localStorage.getItem("workmark_theme");
 
-themeToggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-
-  if (document.body.classList.contains("dark")) {
-    localStorage.setItem("workmark_theme", "dark");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
     themeToggle.textContent = "☀️";
-  } else {
-    localStorage.setItem("workmark_theme", "light");
-    themeToggle.textContent = "🌙";
   }
-});
+
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+
+    if (document.body.classList.contains("dark")) {
+      localStorage.setItem("workmark_theme", "dark");
+      themeToggle.textContent = "☀️";
+    } else {
+      localStorage.setItem("workmark_theme", "light");
+      themeToggle.textContent = "🌙";
+    }
+  });
+}
     function stripTime(date) {
       return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     }
