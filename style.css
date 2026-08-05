@@ -356,4 +356,26 @@
         align-items: flex-start;
       }
     }
-  
+  body.dark {
+  background: #0b1020;
+  color: #ffffff;
+}
+
+body.dark .app {
+  background: #111827;
+}
+
+body.dark .stat-card {
+  background: #1f2937;
+  color: #ffffff;
+}
+
+body.dark .stat-card span,
+body.dark .stat-card small {
+  color: #9ca3af;
+}
+
+body.dark button {
+  background: #1f2937;
+  color: white;
+}
